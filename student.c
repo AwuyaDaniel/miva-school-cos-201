@@ -24,7 +24,12 @@ void addStudent() {
     scanf("%f", &students[count].marks);
 
     setStatus(&students[count]);
-    printf("Status: %s\n", students[count].status);
+    // printf("Status: %s\n", students[count].status);
+    if (students[count].marks >= 40)
+        printf("Status: PASS\n");
+    else
+        printf("Status: FAIL\n");
+
 
     count++;
 }
