@@ -7,6 +7,7 @@ typedef struct {
     char name[MAX_NAME];
     int roll;
     float marks;
+    char status[5];
 } Student;
 
 void addStudent();

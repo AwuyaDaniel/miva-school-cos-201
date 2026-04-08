@@ -6,6 +6,10 @@
 Student *students = NULL;
 int count = 0;
 
+static void setStatus(Student *s) {
+    strcpy(s->status, s->marks >= 40 ? "PASS" : "FAIL");
+}
+
 // ADD
 void addStudent() {
     students = realloc(students, (count + 1) * sizeof(Student));
@@ -19,10 +23,8 @@ void addStudent() {
     printf("Enter marks: ");
     scanf("%f", &students[count].marks);
 
-    if (students[count].marks >= 40)
-        printf("Status: PASS\n");
-    else
-        printf("Status: FAIL\n");
+    setStatus(&students[count]);
+    printf("Status: %s\n", students[count].status);
 
     count++;
 }
@@ -35,10 +37,11 @@ void displayStudents() {
     }
 
     for(int i = 0; i < count; i++) {
-        printf("Name: %s | Roll: %d | Marks: %.2f\n",
+        printf("Name: %s | Roll: %d | Marks: %.2f | Status: %s\n",
                students[i].name,
                students[i].roll,
-               students[i].marks);
+               students[i].marks,
+               students[i].status);
     }
 }
 
@@ -56,6 +59,8 @@ void modifyStudent() {
 
             printf("Enter new marks: ");
             scanf("%f", &students[i].marks);
+            setStatus(&students[i]);
+            printf("Status: %s\n", students[i].status);
             found = 1;
         }
     }
@@ -96,9 +101,10 @@ void searchStudent() {
 
     for(int i = 0; i < count; i++) {
         if(students[i].roll == roll) {
-            printf("Name: %s | Marks: %.2f\n",
+            printf("Name: %s | Marks: %.2f | Status: %s\n",
                    students[i].name,
-                   students[i].marks);
+                   students[i].marks,
+                   students[i].status);
             found = 1;
         }
     }
@@ -141,10 +147,11 @@ void saveToFile() {
     if(fp == NULL) return;
 
     for(int i = 0; i < count; i++) {
-        fprintf(fp, "%s %d %.2f\n",
+        fprintf(fp, "%s %d %.2f %s\n",
                 students[i].name,
                 students[i].roll,
-                students[i].marks);
+                students[i].marks,
+                students[i].status);
     }
 
     fclose(fp);
@@ -163,13 +170,22 @@ void loadFromFile() {
     while(1) {
         students = realloc(students, (count + 1) * sizeof(Student));
 
-        if(fscanf(fp, "%s %d %f",
+        if(fscanf(fp, "%s %d %f %4s",
                   students[count].name,
                   &students[count].roll,
-                  &students[count].marks) != 3)
+                  &students[count].marks,
+                  students[count].status) == 4) {
+            count++;
+        } else if(fscanf(fp, "%s %d %f",
+                  students[count].name,
+                  &students[count].roll,
+                  &students[count].marks) == 3) {
+            /* old file without status column — derive it */
+            setStatus(&students[count]);
+            count++;
+        } else {
             break;
-
-        count++;
+        }
     }
 
     fclose(fp);
